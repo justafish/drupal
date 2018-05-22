@@ -33,7 +33,7 @@ module.exports = {
     ) {
       let testName = browser.currentTest.name || browser.currentTest.module;
       testName = testName.split(' ').join('-');
-      const resultPath = path.join(__dirname, `../../../${nightwatchSettings.output_folder}/consoleLogs/${browser.currentTest.module}`);
+      const resultPath = path.join(__dirname, `../../../${nightwatchSettings.output_folder}/consoleLogs`);
       const status = browser.currentTest.results.errors > 0 || browser.currentTest.results.failed > 0 ? 'FAILED' : 'PASSED';
       mkdirp.sync(resultPath);
       const now = new Date().toString().split(' ').join('-');
