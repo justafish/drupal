@@ -56,6 +56,8 @@ use Drupal\Core\Entity\Entity\EntityViewDisplay;
  *   config_export = {
  *     "name",
  *     "label",
+ *     "include_in_normalized_entity",
+ *     "normalized_entity_granularity",
  *     "effects",
  *   }
  * )

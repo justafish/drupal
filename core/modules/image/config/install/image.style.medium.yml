@@ -3,6 +3,12 @@ status: true
 dependencies: {  }
 name: medium
 label: 'Medium (220×220)'
+# Outputs all image styles when normalized e.g. REST output
+include_in_normalized_entity: true
+# Filter which entities and bundles the image style is included in
+#normalized_entity_granularity:
+#  node:
+#    - article
 effects:
   bddf0d06-42f9-4c75-a700-a33cafa25ea0:
     uuid: bddf0d06-42f9-4c75-a700-a33cafa25ea0

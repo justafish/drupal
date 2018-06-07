@@ -112,6 +112,9 @@ abstract class MediaResourceTestBase extends EntityResourceTestBase {
       ->setRevisionUserId(static::$auth ? $this->account->id() : 0)
       ->save();
 
+    $this->config('image.settings')->set('suppress_itok_output', TRUE)->save(TRUE);
+    $this->config('image.style.large')->set('normalized_entity_granularity', array('media' => array('camelids')))->save(TRUE);
+
     return $media;
   }
 
@@ -175,6 +178,18 @@ abstract class MediaResourceTestBase extends EntityResourceTestBase {
           'target_uuid' => $thumbnail->uuid(),
           'title' => 'Llama',
           'url' => $thumbnail->url(),
+          'derivatives' => [
+            'medium' => [
+                'url' => file_url_transform_relative(file_create_url('public://styles/medium/public/media-icons/generic/generic.png')),
+                'height' => 180,
+                'width' => 180,
+              ],
+            'thumbnail' => [
+                'url' => file_url_transform_relative(file_create_url('public://styles/thumbnail/public/media-icons/generic/generic.png')),
+                'height' => 100,
+                'width' => 100,
+              ],
+          ],
         ],
       ],
       'status' => [

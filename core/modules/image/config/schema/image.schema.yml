@@ -9,6 +9,17 @@ image.style.*:
     label:
       type: label
       label: 'Label'
+    include_in_normalized_entity:
+      type: boolean
+      label: 'Include in Normalized Entity'
+    normalized_entity_granularity:
+      nullable: true
+      type: sequence
+      label: 'Include only in specific Entities and Bundles'
+      sequence:
+        type: sequence
+        sequence:
+          type: string
     effects:
       type: sequence
       sequence:
