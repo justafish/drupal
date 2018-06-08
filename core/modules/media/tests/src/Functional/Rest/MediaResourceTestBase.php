@@ -180,15 +180,15 @@ abstract class MediaResourceTestBase extends EntityResourceTestBase {
           'url' => $thumbnail->url(),
           'derivatives' => [
             'medium' => [
-                'url' => file_url_transform_relative(file_create_url('public://styles/medium/public/media-icons/generic/generic.png')),
-                'height' => 180,
-                'width' => 180,
-              ],
+              'url' => file_url_transform_relative(file_create_url('public://styles/medium/public/media-icons/generic/generic.png')),
+              'height' => 180,
+              'width' => 180,
+            ],
             'thumbnail' => [
-                'url' => file_url_transform_relative(file_create_url('public://styles/thumbnail/public/media-icons/generic/generic.png')),
-                'height' => 100,
-                'width' => 100,
-              ],
+              'url' => file_url_transform_relative(file_create_url('public://styles/thumbnail/public/media-icons/generic/generic.png')),
+              'height' => 100,
+              'width' => 100,
+            ],
           ],
         ],
       ],
