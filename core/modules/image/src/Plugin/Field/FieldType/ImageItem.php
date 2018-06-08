@@ -9,6 +9,7 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\Core\TypedData\DataDefinition;
+use Drupal\Core\TypedData\ListDataDefinition;
 use Drupal\file\Entity\File;
 use Drupal\file\Plugin\Field\FieldType\FileItem;
 
@@ -160,6 +161,12 @@ class ImageItem extends FileItem {
     $properties['height'] = DataDefinition::create('integer')
       ->setLabel(t('Height'))
       ->setDescription(t('The height of the image in pixels.'));
+
+    $properties['derivatives'] = ListDataDefinition::create('image_style')
+      ->setLabel(t('Derived images'))
+      ->setDescription(t('Images derived from the stored image, one per Image Style configured for this site. For each derived image, the URL, width and height are provided.'))
+      ->setComputed(TRUE)
+      ->setInternal(FALSE);
 
     return $properties;
   }

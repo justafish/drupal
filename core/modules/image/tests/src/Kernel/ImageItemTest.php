@@ -128,7 +128,7 @@ class ImageItemTest extends FieldKernelTestBase {
     $entity->save();
 
     // Test image item properties.
-    $expected = ['target_id', 'entity', 'alt', 'title', 'width', 'height'];
+    $expected = ['target_id', 'entity', 'alt', 'title', 'width', 'height', 'derivatives'];
     $properties = $entity->getFieldDefinition('image_test')->getFieldStorageDefinition()->getPropertyDefinitions();
     $this->assertEqual(array_keys($properties), $expected);
 

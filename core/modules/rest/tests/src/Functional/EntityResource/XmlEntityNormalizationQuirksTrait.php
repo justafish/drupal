@@ -95,6 +95,15 @@ trait XmlEntityNormalizationQuirksTrait {
             $width = (string) $width;
             $target_id = &$normalization[$field_name][$i]['target_id'];
             $target_id = (string) $target_id;
+            if ($normalization[$field_name][$i]['derivatives'] && is_array($normalization[$field_name][$i]['derivatives'])) {
+              $derivatives = &$normalization[$field_name][$i]['derivatives'];
+              if (is_array($derivatives)) {
+                foreach (array_keys($derivatives) as $image_style) {
+                  $derivatives[$image_style]['width'] = (string) $derivatives[$image_style]['width'];
+                  $derivatives[$image_style]['height'] = (string) $derivatives[$image_style]['height'];
+                }
+              }
+            }
             break;
         }
       }

@@ -25,8 +25,8 @@ class ListNormalizer extends NormalizerBase {
    */
   public function normalize($object, $format = NULL, array $context = []) {
     $attributes = [];
-    foreach ($object as $fieldItem) {
-      $attributes[] = $this->serializer->normalize($fieldItem, $format, $context);
+    foreach ($object as $key => $value) {
+      $attributes[$key] = $this->serializer->normalize($value, $format, $context);
     }
     return $attributes;
   }
