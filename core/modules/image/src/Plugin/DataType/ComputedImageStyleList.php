@@ -91,8 +91,8 @@ class ComputedImageStyleList extends ItemList {
 
     return [
       'url' => file_url_transform_relative($style->buildUrl($file_uri)),
-      'width' => $dimensions['width'],
-      'height' => $dimensions['height'],
+      'width' => (int) $dimensions['width'],
+      'height' => (int) $dimensions['height'],
     ];
   }
 
