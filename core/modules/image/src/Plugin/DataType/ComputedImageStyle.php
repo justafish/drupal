@@ -2,9 +2,7 @@
 
 namespace Drupal\image\Plugin\DataType;
 
-use Drupal\Core\TypedData\DataDefinition;
-use Drupal\Core\TypedData\MapDataDefinition;
-use Drupal\Core\TypedData\Plugin\DataType\Map;
+use Drupal\Core\TypedData\TypedData;
 
 /**
  * The image style data type.
@@ -14,7 +12,6 @@ use Drupal\Core\TypedData\Plugin\DataType\Map;
  * @DataType(
  *   id = "image_style",
  *   label = @Translation("Image style metadata"),
- *   definition_class = "\Drupal\image\Plugin\DataType\ImageStyleDataDefinition",
  *   list_class = "\Drupal\image\Plugin\DataType\ComputedImageStyleList",
  * )
  *
@@ -22,7 +19,7 @@ use Drupal\Core\TypedData\Plugin\DataType\Map;
  *
  * @internal
  */
-class ComputedImageStyle extends Map {
+class ComputedImageStyle extends TypedData {
 
   protected $url = NULL;
   protected $width = NULL;
@@ -41,7 +38,6 @@ class ComputedImageStyle extends Map {
     if ($notify && isset($this->parent)) {
       $this->parent->onChange($this->name);
     }
-    parent::setValue($value);
   }
 
   /**
