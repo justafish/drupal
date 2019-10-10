@@ -3,7 +3,7 @@
  * Provides responsive behaviors to HTML details elements.
  */
 
-(function($, Drupal) {
+(($, Drupal) => {
   /**
    * Initializes the responsive behaviors for details elements.
    *

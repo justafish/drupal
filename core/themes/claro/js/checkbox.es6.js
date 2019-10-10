@@ -1,15 +1,15 @@
 /**
  * @file
- * Defines checkbox theme functions.
+ * Theme overrides for Claro.
  */
 
 (Drupal => {
   /**
-   * Theme function for a checkbox.
+   * Constucts a checkbox input element.
    *
    * @return {string}
-   *   The HTML markup for the checkbox.
+   *   A string representing a DOM fragment.
    */
   Drupal.theme.checkbox = () =>
-    `<input type="checkbox" class="form-checkbox"/>`;
+    '<input type="checkbox" class="form-checkbox form-boolean form-boolean--type-checkbox"/>';
 })(Drupal);

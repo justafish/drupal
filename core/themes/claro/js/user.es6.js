@@ -1,18 +1,20 @@
 /**
  * @file
- * User behaviors.
+ * Overrides Drupal core user.js that provides password strength indicator.
+ *
+ * @todo remove these overrides after
+ *   https://www.drupal.org/project/drupal/issues/3067523 has been resolved.
  */
 
-(function($, Drupal, drupalSettings) {
+(($, Drupal) => {
   /**
-   * Attach handlers to evaluate the strength of any password fields and to
-   * check that its confirmation is correct.
+   * This overrides the default Drupal.behaviors.password functionality.
    *
-   * @type {Drupal~behavior}
-   *
-   * @prop {Drupal~behaviorAttach} attach
-   *   Attaches password strength indicator and other relevant validation to
-   *   password fields.
+   * - Markup has been moved to theme functions so that to enable customizations
+   *   needed for matching Claro's design requirements
+   *   (https://www.drupal.org/project/drupal/issues/3067523).
+   * - Modified classes so that same class names are not being used for different
+   *   elements (https://www.drupal.org/project/drupal/issues/3061265).
    */
   Drupal.behaviors.password = {
     attach(context, settings) {
@@ -21,124 +23,185 @@
         .once('password');
 
       if ($passwordInput.length) {
+        // Settings and translated messages added by
+        // user_form_process_password_confirm().
         const translate = settings.password;
 
+        // The form element object of the password input.
         const $passwordInputParent = $passwordInput.parent();
-        const $passwordInputParentWrapper = $passwordInputParent.parent();
-        let $passwordSuggestions;
 
-        // Add identifying class to password element parent.
-        $passwordInputParent.addClass('password-parent');
+        // The password_confirm form element object.
+        const $passwordWidget = $passwordInput.closest(
+          '.js-form-type-password-confirm',
+        );
 
-        // Add the password confirmation layer.
-        $passwordInputParentWrapper
-          .find('input.js-password-confirm')
-          .parent()
-          .append(Drupal.theme('passwordConfirmMessage', translate))
-          .addClass('confirm-parent');
-
-        const $confirmInput = $passwordInputParentWrapper.find(
+        // The password confirm input.
+        const $passwordConfirmInput = $passwordWidget.find(
           'input.js-password-confirm',
         );
-        const $confirmResult = $passwordInputParentWrapper.find(
-          'div.js-password-confirm-message',
+
+        // The strength feedback element for the password input.
+        const $passwordInputHelp = $(
+          Drupal.theme.passwordInputHelp(translate.strengthTitle),
         );
-        const $confirmChild = $confirmResult.find('span');
+
+        // The password match feedback for the password confirm input.
+        const $passwordConfirmHelp = $(
+          Drupal.theme.passwordConfirmHelp(translate.confirmTitle),
+        );
+
+        const $passwordInputStrengthBar = $passwordInputHelp.find(
+          '.js-password-strength-bar',
+        );
+        const $passwordInputStrengthMessageWrapper = $passwordInputHelp.find(
+          '.js-password-strength-text',
+        );
+        const $passwordConfirmMatch = $passwordConfirmHelp.find(
+          '.js-password-match-text',
+        );
+        let $passwordSuggestionsTips = $(
+          Drupal.theme.passwordSuggestionsTips('', ''),
+        ).hide();
 
         // If the password strength indicator is enabled, add its markup.
         if (settings.password.showStrengthIndicator) {
-          const passwordMeter = `<div class="password-strength"><div class="password-strength__meter"><div class="password-strength__indicator js-password-strength__indicator"></div></div><div aria-live="polite" aria-atomic="true" class="password-strength__title">${
-            translate.strengthTitle
-          } <span class="password-strength__text js-password-strength__text"></span></div></div>`;
-          $confirmInput
+          $passwordConfirmInput
+            .after($passwordConfirmHelp)
             .parent()
-            .after('<div class="password-suggestions description"></div>');
-          $passwordInputParent.append(passwordMeter);
-          $passwordSuggestions = $passwordInputParentWrapper
-            .find('div.password-suggestions')
-            .hide();
+            .after($passwordSuggestionsTips);
+
+          $passwordInputParent.append($passwordInputHelp);
         }
 
         // Check that password and confirmation inputs match.
-        const passwordCheckMatch = function(confirmInputVal) {
-          const success = $passwordInput.val() === confirmInputVal;
-          const confirmClass = success ? 'ok' : 'error';
+        const passwordCheckMatch = confirmInputVal => {
+          if (confirmInputVal) {
+            const success = $passwordInput.val() === confirmInputVal;
+            const confirmClass = success ? 'ok' : 'error';
+            const confirmMatchMessage = success
+              ? translate.confirmSuccess
+              : translate.confirmFailure;
 
-          // Fill in the success message and set the class accordingly.
-          $confirmChild
-            .html(translate[`confirm${success ? 'Success' : 'Failure'}`])
-            .removeClass('ok error')
-            .addClass(confirmClass);
+            // Update the success message and set the class accordingly if
+            // needed.
+            if (
+              !$passwordConfirmMatch.hasClass(confirmClass) ||
+              !$passwordConfirmMatch.html() === confirmMatchMessage
+            ) {
+              $passwordConfirmMatch
+                .html(confirmMatchMessage)
+                .removeClass('ok error')
+                .addClass(confirmClass);
+            }
+          }
         };
 
         // Check the password strength.
-        const passwordCheck = function() {
+        const passwordCheck = () => {
           if (settings.password.showStrengthIndicator) {
             // Evaluate the password strength.
             const result = Drupal.evaluatePasswordStrength(
               $passwordInput.val(),
               settings.password,
             );
+            const $newSuggestions = $(
+              Drupal.theme.passwordSuggestionsTips(
+                translate.hasWeaknesses,
+                result.tips,
+              ),
+            );
 
             // Update the suggestions for how to improve the password.
-            if ($passwordSuggestions.html() !== result.message) {
-              $passwordSuggestions.html(result.message);
+            if ($newSuggestions.html() !== $passwordSuggestionsTips.html()) {
+              $passwordSuggestionsTips.replaceWith($newSuggestions);
+              $passwordSuggestionsTips = $newSuggestions;
+
+              // Only show the description box if a weakness exists in the
+              // password.
+              $passwordSuggestionsTips.toggle(result.strength !== 100);
             }
 
-            // Only show the description box if a weakness exists in the
-            // password.
-            $passwordSuggestions.toggle(result.strength !== 100);
-
             // Adjust the length of the strength indicator.
-            $passwordInputParent
-              .find('.js-password-strength__indicator')
+            $passwordInputStrengthBar
               .css('width', `${result.strength}%`)
               .removeClass('is-weak is-fair is-good is-strong')
               .addClass(result.indicatorClass);
 
-            // Update the strength indication text.
-            $passwordInputParent
-              .find('.js-password-strength__text')
-              .html(result.indicatorText);
+            // Update the strength indication text if needed.
+            if (
+              !$passwordInputStrengthMessageWrapper.hasClass(
+                result.indicatorClass,
+              ) ||
+              !$passwordInputStrengthMessageWrapper.html() ===
+                result.indicatorText
+            ) {
+              $passwordInputStrengthMessageWrapper
+                .html(result.indicatorText)
+                .removeClass('is-weak is-fair is-good is-strong')
+                .addClass(result.indicatorClass);
+            }
           }
 
+          $passwordWidget
+            .removeClass('is-initial')
+            .removeClass('is-password-empty is-password-filled')
+            .removeClass('is-confirm-empty is-confirm-filled');
+
+          // Check the value of the password input and add the proper classes.
+          $passwordWidget.addClass(
+            $passwordInput.val() ? 'is-password-filled' : 'is-password-empty',
+          );
+
           // Check the value in the confirm input and show results.
-          if ($confirmInput.val()) {
-            passwordCheckMatch($confirmInput.val());
-            $confirmResult.css({ visibility: 'visible' });
-          } else {
-            $confirmResult.css({ visibility: 'hidden' });
-          }
+          passwordCheckMatch($passwordConfirmInput.val());
+          $passwordWidget.addClass(
+            $passwordConfirmInput.val()
+              ? 'is-confirm-filled'
+              : 'is-confirm-empty',
+          );
         };
+
+        // Add initial classes.
+        $passwordWidget
+          .addClass(
+            $passwordInput.val() ? 'is-password-filled' : 'is-password-empty',
+          )
+          .addClass(
+            $passwordConfirmInput.val()
+              ? 'is-confirm-filled'
+              : 'is-confirm-empty',
+          );
 
         // Monitor input events.
         $passwordInput.on('input', passwordCheck);
-        $confirmInput.on('input', passwordCheck);
+        $passwordConfirmInput.on('input', passwordCheck);
       }
     },
   };
 
   /**
-   * Evaluate the strength of a user's password.
+   * Override the default Drupal.evaluatePasswordStrength.
    *
-   * Returns the estimated strength and the relevant output message.
+   * The default implementation of this function hard codes some markup inside
+   * this function. Rendering markup is now handled by
+   * Drupal.behaviors.password.
    *
    * @param {string} password
-   *   The password to evaluate.
-   * @param {object} translate
-   *   An object containing the text to display for each strength level.
+   *   Password to evaluate the strength.
    *
-   * @return {object}
-   *   An object containing strength, message, indicatorText and indicatorClass.
+   * @param {Array.<string>} translate
+   *   Settings and translated messages added by user_form_process_password_confirm().
+   *
+   * @return {Array.<string>}
+   *   Array containing the strength, tips, indicators text and class.
    */
-  Drupal.evaluatePasswordStrength = function(password, translate) {
+  Drupal.evaluatePasswordStrength = (password, translate) => {
     password = password.trim();
     let indicatorText;
     let indicatorClass;
     let weaknesses = 0;
     let strength = 100;
-    let msg = [];
-
+    const tips = [];
     const hasLowercase = /[a-z]/.test(password);
     const hasUppercase = /[A-Z]/.test(password);
     const hasNumbers = /[0-9]/.test(password);
@@ -152,26 +215,26 @@
 
     // Lose 5 points for every character less than 12, plus a 30 point penalty.
     if (password.length < 12) {
-      msg.push(translate.tooShort);
+      tips.push(translate.tooShort);
       strength -= (12 - password.length) * 5 + 30;
     }
 
     // Count weaknesses.
     if (!hasLowercase) {
-      msg.push(translate.addLowerCase);
-      weaknesses++;
+      tips.push(translate.addLowerCase);
+      weaknesses += 1;
     }
     if (!hasUppercase) {
-      msg.push(translate.addUpperCase);
-      weaknesses++;
+      tips.push(translate.addUpperCase);
+      weaknesses += 1;
     }
     if (!hasNumbers) {
-      msg.push(translate.addNumbers);
-      weaknesses++;
+      tips.push(translate.addNumbers);
+      weaknesses += 1;
     }
     if (!hasPunctuation) {
-      msg.push(translate.addPunctuation);
-      weaknesses++;
+      tips.push(translate.addPunctuation);
+      weaknesses += 1;
     }
 
     // Apply penalty for each weakness (balanced against length penalty).
@@ -191,11 +254,15 @@
       case 4:
         strength -= 40;
         break;
+
+      default:
+        // Default: 0. Nothing to do.
+        break;
     }
 
     // Check if password is the same as the username.
     if (password !== '' && password.toLowerCase() === username.toLowerCase()) {
-      msg.push(translate.sameAsUsername);
+      tips.push(translate.sameAsUsername);
       // Passwords the same as username are always very weak.
       strength = 5;
     }
@@ -216,16 +283,62 @@
       indicatorClass = 'is-strong';
     }
 
-    // Assemble the final message.
-    msg = `${translate.hasWeaknesses}<ul><li>${msg.join(
-      '</li><li>',
-    )}</li></ul>`;
-
     return {
       strength,
-      message: msg,
+      tips,
       indicatorText,
       indicatorClass,
     };
   };
-})(jQuery, Drupal, drupalSettings);
+
+  /**
+   * Password strenght feedback for password confirm's main input.
+   *
+   * @param {string} message
+   *   The prefix text for the strength feedback word.
+   *
+   * @return {string}
+   *   The string representing the DOM fragment.
+   */
+  Drupal.theme.passwordInputHelp = message =>
+    `<div class="password-strength">
+      <div class="password-strength__track">
+        <div class="password-strength__bar js-password-strength-bar"></div>
+      </div>
+      <div aria-live="polite" aria-atomic="true" class="password-strength__title">
+        ${message} <span class="password-strength__text js-password-strength-text"></span>
+      </div>
+    </div>`;
+
+  /**
+   * Password match feedback for password confirm input.
+   *
+   * @param {string} message
+   *   The message that precedes the yes|no text.
+   *
+   * @return {string}
+   *   A string representing the DOM fragment.
+   */
+  Drupal.theme.passwordConfirmHelp = message =>
+    `<div aria-live="polite" aria-atomic="true" class="password-match-message">${message} <span class="password-match-message__text js-password-match-text"></span></div>`;
+
+  /**
+   * Password suggestions tips.
+   *
+   * @param {string} title
+   *   The title that precedes tips.
+   * @param {Array.<string>} tips
+   *   Array containing the tips.
+   *
+   * @return {string}
+   *   A string representing the DOM fragment.
+   */
+  Drupal.theme.passwordSuggestionsTips = (title, tips) =>
+    `<div class="password-suggestions">${
+      tips.length
+        ? `${title}<ul class="password-suggestions__tips"><li class="password-suggestions__tip">${tips.join(
+            '</li><li class="password-suggestions__tip">',
+          )}</li></ul>`
+        : ''
+    }</div>`;
+})(jQuery, Drupal);
