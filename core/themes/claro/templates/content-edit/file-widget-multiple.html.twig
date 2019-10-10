@@ -1,0 +1,19 @@
+{#
+/**
+ * @file
+ * Theme override to display a multiple file upload form widget.
+ *
+ * Available variables:
+ * - table: Table of previously uploaded files.
+ * - element: The form element for uploading another file.
+ *
+ * @see template_preprocess_file_widget_multiple()
+ */
+#}
+<div class="file-widget-multiple">
+  <div class="file-widget-multiple__table-wrapper">
+    {{ table }}
+  </div>
+
+  {{ element }}
+</div>

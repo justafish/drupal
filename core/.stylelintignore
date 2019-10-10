@@ -1,0 +1,2 @@
+themes/claro/**/*.css
+!themes/claro/**/*.postcss.css

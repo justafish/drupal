@@ -1,0 +1,79 @@
+/**
+ * @file
+ * Styles for the managed file widget.
+ */
+
+@import "../base/variables.pcss.css";
+
+.form-managed-file.no-upload {
+  max-width: 32rem;
+}
+
+.form-managed-file.has-value.no-meta {
+  max-width: none;
+}
+
+.form-managed-file__main {
+  display: flex;
+  align-items: center;
+}
+
+.form-managed-file.has-upload .form-managed-file__main,
+.form-managed-file.has-value.no-meta .form-managed-file__main {
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.form-managed-file .file {
+  word-break: break-all;
+  hyphens: auto;
+}
+
+.form-managed-file .file__size {
+  word-break: normal;
+}
+
+.form-managed-file__main .file {
+  flex-grow: 1;
+  margin: var(--space-xs) var(--space-m) var(--space-xs) 0; /* LTR */
+}
+[dir="rtl"] .form-managed-file__main .file {
+  margin-right: 0;
+  margin-left: var(--space-m);
+}
+
+/* Remove margins from RTL .buttons as well */
+.form-managed-file .button.button {
+  margin: 0;
+}
+
+.form-managed-file__main .form-element--api-file {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.form-managed-file__main .upload-button {
+  flex: 0 0 auto;
+}
+
+[dir="rtl"] .form-managed-file__main .file {
+  margin-right: 0;
+  margin-left: var(--space-m);
+}
+
+/**
+ * Alternative styles for the widget inside a (draggable) table.
+ */
+.table-file-multiple-widget .form-managed-file .file {
+  margin-bottom: 0;
+}
+
+.table-file-multiple-widget .form-item::before {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.table-file-multiple-widget .form-managed-file .form-element {
+  width: 100%;
+}
