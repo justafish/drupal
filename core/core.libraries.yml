@@ -171,7 +171,7 @@ drupal.date:
   dependencies:
     - core/drupal
     - core/modernizr
-    - core/jquery.once
+    - core/once
 
 drupal.debounce:
   version: VERSION
@@ -268,6 +268,11 @@ drupal.dropbutton:
     - core/drupal
     - core/drupalSettings
     - core/jquery.once
+
+drupal.element.matches:
+  version: VERSION
+  js:
+    misc/polyfills/element.matches.js: { weight: -20 }
 
 drupal.entity-form:
   version: VERSION
@@ -720,6 +725,18 @@ normalize:
     base:
       assets/vendor/normalize-css/normalize.css: { weight: -20 }
       misc/normalize-fixes.css: { weight: -19 }
+
+once:
+  remote: https://git.drupalcode.org/project/once
+  version: "0.0.4"
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://git.drupalcode.org/project/once/-/raw/v0.0.4/LICENSE.md
+    gpl-compatible: true
+  js:
+    assets/vendor/once/once.min.js: { weight: -19, minified: true }
+  dependencies:
+    - core/drupal.element.matches
 
 picturefill:
   remote: https://github.com/scottjehl/picturefill
